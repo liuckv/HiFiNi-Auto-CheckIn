@@ -1,0 +1,44 @@
+name: HiFINI-Auto-CheckIn
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 22 * * *"   # 北京时间 06:30 (UTC 22:30)
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      COOKIE: ${{ secrets.COOKIE }}
+      HIFIHI_COOKIE: ${{ secrets.HIFIHI_COOKIE }}
+      SERVER_CHAN: ${{ secrets.SERVER_CHAN }}
+      DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
+      WXWORK_WEBHOOK: ${{ secrets.WXWORK_WEBHOOK }}
+      TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+      GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
+      GOTIFY_APP_TOKEN: ${{ secrets.GOTIFY_APP_TOKEN }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+
+      - name: Setup JDK 8
+        uses: actions/setup-java@c7e1c6e9c14eaa5b0e54796aaf3c14b4d7eae3b7
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'maven'
+
+      - name: Build
+        run: mvn -B clean package
+
+      - name: Run Application
+        run: |
+          mvn -B exec:java \
+          -Dexec.mainClass=cloud.ohiyou.HifiniApplication \
+          -Dexec.cleanupDaemonThreads=false
