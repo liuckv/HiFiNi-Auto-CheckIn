@@ -1,31 +1,67 @@
-name: HiFINI-Auto-CheckIn
+name: HiFINI-Auto-CheckIn1
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 手动触发
   schedule:
-    - cron: "30 22 * * *"
+    - cron: "30 22 * * *"   # 北京时间 06:30 (UTC 22:30)
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     env:
       COOKIE: ${{ secrets.COOKIE }}
+      HIFIHI_COOKIE: ${{ secrets.HIFIHI_COOKIE }}
+      SERVER_CHAN: ${{ secrets.SERVER_CHAN }}
+      DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
+      WXWORK_WEBHOOK: ${{ secrets.WXWORK_WEBHOOK }}
+      TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+      GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
+      GOTIFY_APP_TOKEN: ${{ secrets.GOTIFY_APP_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Setup JDK 8
+      - name: Set up JDK 8
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
           java-version: '8'
+          distribution: 'temurin'
+          cache: 'maven'
 
-      - name: Compile
-        run: |
-          mkdir -p out
-          javac -d out src/main/java/cloud/ohiyou/HifiniApplication.java
+      - name: Build with Maven
+        run: mvn -B clean compile
 
-      - name: Run
+      - name: Run SignIn with Retry Mechanism
         run: |
-          java -cp out cloud.ohiyou.HifiniApplication
+          RETRY_COUNT=3
+          SUCCESS=false
+          LOG_FILE="sign-in-log.txt"
+
+          for i in $(seq 1 $RETRY_COUNT); do
+            echo "Running attempt #$i..." >> $LOG_FILE
+            mvn -B exec:java \
+              -Dexec.mainClass=cloud.ohiyou.HifiniApplication \
+              -Dexec.cleanupDaemonThreads=false >> $LOG_FILE 2>&1
+
+            # 检查是否成功
+            if grep -q "签到成功" $LOG_FILE; then
+              SUCCESS=true
+              break
+            else
+              echo "Attempt #$i failed, retrying..." >> $LOG_FILE
+              sleep 10  # 等待10秒后重试
+            fi
+          done
+
+          if [ "$SUCCESS" = true ]; then
+            echo "签到成功!" >> $LOG_FILE
+            # 成功后发送通知（可以选择启用不同通知方式）
+            curl -X POST ${{ secrets.TG_WEBHOOK }} -d '{"text": "HiFiNi 签到成功！"}'
+          else
+            echo "所有尝试均失败!" >> $LOG_FILE
+            # 发送失败通知
+            curl -X POST ${{ secrets.TG_WEBHOOK }} -d '{"text": "HiFiNi 签到失败！请检查日志。"}'
+            exit 1
+          fi
