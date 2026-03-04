@@ -1,0 +1,30 @@
+# .github/workflows/hifihi.yml
+
+name: Simple SignIn Workflow
+
+on:
+  schedule:
+    - cron: "30 22 * * *"  # 每天 UTC 22:30（北京时间 06:30）
+  workflow_dispatch:   # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      COOKIE: ${{ secrets.COOKIE }}  # 从 Secrets 中获取 COOKIE
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Compile and Run SignIn Java
+        run: |
+          javac SignIn.java
+          java SignIn  # 直接运行 Java 类文件
