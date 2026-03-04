@@ -5,112 +5,33 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cloud.ohiyou</groupId>
-    <artifactId>HifiNiAutoCheckIn</artifactId>
+    <artifactId>hifini-auto-checkin</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
+        <!-- 示例依赖，实际使用时可以根据需要添加更多 -->
         <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>2.5.4</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>2.0.32</version>
-        </dependency>
-
-        <!-- 钉钉api -->
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>alibaba-dingtalk-service-sdk</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-
-        <!-- 钉钉api -->
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.13</version>
-        </dependency>
-
-        <!-- lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
-        </dependency>
-
-        <!-- SLF4J API -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-
-        <!-- Logback Classic (SLF4J实现) -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.12</version>
-        </dependency>
-
-        <!-- Logback Core -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.2.12</version>
-        </dependency>
-
-        <!-- 腾讯云函数 SDK -->
-        <dependency>
-            <groupId>com.tencentcloudapi</groupId>
-            <artifactId>scf-java-events</artifactId>
-            <version>0.0.4</version>
-        </dependency>
-
-        <!-- 阿里云函数计算 SDK -->
-        <dependency>
-            <groupId>com.aliyun.fc.runtime</groupId>
-            <artifactId>fc-java-core</artifactId>
-            <version>1.4.1</version>
-        </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Maven Shade Plugin: 打包可执行 fat jar -->
+            <!-- exec 插件用于运行 Java 程序 -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>java</goal>
                         </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>cloud.ohiyou.HifiniApplication</mainClass>
-                                </transformer>
-                            </transformers>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>shaded</shadedClassifierName>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
 </project>
